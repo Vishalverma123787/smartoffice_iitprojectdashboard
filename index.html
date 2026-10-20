@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Office Project Dashboard</title>
+<style>
+:root{
+  --font-anthropic-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-anthropic-serif:Georgia,"Times New Roman",serif;
+  --cds-font-size-title:1.75rem;--cds-font-size-heading:1rem;--cds-font-size-body:.9375rem;--cds-font-size-caption:.8125rem;
+  --cds-font-weight-medium:600;
+  --cds-gap-xs:4px;--cds-gap-sm:8px;--cds-gap-md:16px;--cds-pad-xs:4px;--cds-pad-sm:8px;--cds-pad-lg:18px;--cds-radius:12px;
+  --color-fg:#1f1f1c;--color-fg-muted:#6b6963;--color-bg:#f5f4ef;--color-panel:#ffffff;--color-border-line:#e2e0d8;
+  --color-ok:#15803d;--color-bad:#b42318;
+  --cds-chart-grid:#ecebe5;--cds-chart-muted:#bdbab0;--cds-chart-status-critical:#d4533b;--cds-chart-axis:#9a978f;--cds-chart-reference:#8a877f;
+  --cds-surface-popover:#ffffff;--cds-border:#d6d3cc;--cds-shadow-popover:0 4px 14px rgba(0,0,0,.15);
+  --cds-dur-slow:.45s;--cds-ease-out:cubic-bezier(.2,.7,.2,1);
+  --accent:#2f6fdb;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --color-fg:#f0efe9;--color-fg-muted:#a6a39b;--color-bg:#1b1b19;--color-panel:#262624;--color-border-line:#3a3935;
+    --color-ok:#4ade80;--color-bad:#f87171;
+    --cds-chart-grid:#33322f;--cds-chart-muted:#6f6c64;--cds-chart-status-critical:#f08a72;--cds-chart-axis:#7b786f;--cds-chart-reference:#908d84;
+    --cds-surface-popover:#2f2f2c;--cds-border:#47453f;--cds-shadow-popover:0 4px 14px rgba(0,0,0,.5);
+    --accent:#6ea2ff;
+  }
+}
+html,body{margin:0}
+body{background:var(--color-bg);padding:24px 16px 40px;font-family:var(--font-anthropic-sans)}
+.pj{position:relative;max-width:1100px;margin-inline:auto;font-family:var(--font-anthropic-sans);color:var(--color-fg)}
+.pj .ttl{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0 0 var(--cds-gap-xs);line-height:1.2}
+.pj .sub{color:var(--color-fg-muted);font-size:var(--cds-font-size-body);margin:0 0 var(--cds-gap-md);line-height:1.5}
+.pj .kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr));gap:var(--cds-gap-md);margin-bottom:var(--cds-gap-md)}
+.pj .kt{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg)}
+.pj .kl{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin-bottom:var(--cds-gap-xs)}
+.pj .kv{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);font-variant-numeric:tabular-nums}
+.pj .bad{color:var(--color-bad)}
+.pj .ok{color:var(--color-ok)}
+.pj .tabs{display:flex;flex-wrap:wrap;gap:var(--cds-gap-sm);margin-bottom:var(--cds-gap-md)}
+.pj .tab,.pj .chip,.pj .rst{font:inherit;font-size:var(--cds-font-size-caption);color:var(--color-fg);background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.pj .tab.on,.pj .chip.on{background:var(--color-fg);color:var(--color-bg);border-color:var(--color-fg)}
+.pj .tab:focus-visible,.pj .chip:focus-visible,.pj .rst:focus-visible,.pj .rng:focus-visible,.pj .br:focus-visible{outline:2px solid var(--color-fg);outline-offset:2px}
+.pj .cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:var(--cds-gap-md)}
+.pj .card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:flex;flex-direction:column}
+.pj .card[hidden]{display:none}
+.pj .ch{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:0 0 2px}
+.pj .cn{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin:0 0 var(--cds-gap-md);line-height:1.4}
+.pj .box{min-height:200px;font-variant-numeric:tabular-nums;position:relative}
+.pj .br{display:grid;grid-template-columns:minmax(6.5rem,36%) 1fr 4.2rem;align-items:center;gap:var(--cds-gap-sm);margin-bottom:var(--cds-gap-sm);border-radius:6px;padding:2px 4px;margin-inline:-4px}
+.pj .br.pick{cursor:pointer}
+.pj .br.pick:hover{background:var(--cds-chart-grid)}
+.pj .br.sel{outline:2px solid var(--color-fg)}
+.pj .bl{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.pj .bt{height:22px;background:var(--cds-chart-grid);border-radius:4px;overflow:hidden}
+.pj .bb{height:100%;border-radius:4px}
+.pj .bv{font-size:var(--cds-font-size-caption);text-align:right}
+.pj .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--cds-gap-sm) var(--cds-gap-md);margin-bottom:var(--cds-gap-sm);font-size:var(--cds-font-size-caption)}
+.pj .rng{flex:1 1 12rem;min-width:8rem;accent-color:var(--color-fg)}
+.pj .read{font-size:var(--cds-font-size-body);margin-bottom:var(--cds-gap-sm)}
+.pj .read b{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title)}
+.pj .chips{display:flex;flex-wrap:wrap;gap:var(--cds-gap-xs);margin-bottom:var(--cds-gap-sm)}
+.pj .tip{position:absolute;z-index:5;pointer-events:none;max-width:16rem;background:var(--cds-surface-popover);border:1px solid var(--cds-border);border-radius:var(--cds-radius);box-shadow:var(--cds-shadow-popover);padding:var(--cds-pad-xs) var(--cds-pad-sm);font-size:var(--cds-font-size-caption)}
+.pj .tip[hidden]{display:none}
+.pj .foot{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin-top:var(--cds-gap-md);line-height:1.5}
+.pj svg text{fill:var(--color-fg-muted);font-size:11px;font-family:var(--font-anthropic-sans)}
+.pj svg .tl{fill:var(--color-fg);font-weight:600}
+@media (prefers-reduced-motion:no-preference){.pj.first .bb{animation:pjgrow var(--cds-dur-slow) var(--cds-ease-out)}@keyframes pjgrow{from{width:0}}}
+</style>
+</head>
+<body>
+<div class="pj" id="pj">
+  <h1 class="ttl">Smart office tower: project health at a glance</h1>
+  <p class="sub">A finish on day <span class="fill" data-source="kpi" data-field="value" data-where="metric=cpm_days">—</span> has only a <span class="fill" data-source="pertcurve" data-field="cdf" data-where="day=490">—</span>% chance. The forecast cost overrun of ₹<span class="fill" data-source="kpi" data-field="value" data-where="metric=overrun_cr">—</span> Cr is bigger than the ₹<span class="fill" data-source="kpi" data-field="value" data-where="metric=contingency_cr">—</span> Cr contingency. The investment case still clears its hurdle, narrowly. (G+6 office building, simulated data.)</p>
+
+  <div class="kgrid">
+    <div class="kt"><div class="kl">Budget (BAC)</div><div class="kv">₹<span class="fill" data-source="kpi" data-field="value" data-where="metric=bac_cr">—</span> Cr</div></div>
+    <div class="kt"><div class="kl">Forecast (EAC)</div><div class="kv bad">₹<span class="fill" data-source="kpi" data-field="value" data-where="metric=eac_cr">—</span> Cr</div></div>
+    <div class="kt"><div class="kl">Cost index (CPI)</div><div class="kv bad"><span class="fill" data-source="kpi" data-field="value" data-where="metric=cpi">—</span></div></div>
+    <div class="kt"><div class="kl">Schedule index (SPI)</div><div class="kv bad"><span class="fill" data-source="kpi" data-field="value" data-where="metric=spi">—</span></div></div>
+    <div class="kt"><div class="kl">NPV at discount rate</div><div class="kv ok">₹<span class="fill" data-source="kpi" data-field="value" data-where="metric=npv_cr">—</span> Cr</div></div>
+    <div class="kt"><div class="kl">Project IRR</div><div class="kv ok"><span class="fill" data-source="kpi" data-field="value" data-where="metric=irr_pct">—</span>%</div></div>
+  </div>
+
+  <div class="tabs" role="group" aria-label="Show section">
+    <button class="tab on" id="t-all" data-view="all" aria-pressed="true">All</button>
+    <button class="tab" id="t-schedule" data-view="schedule" aria-pressed="false">Schedule risk</button>
+    <button class="tab" id="t-cost" data-view="cost" aria-pressed="false">Cost control</button>
+    <button class="tab" id="t-returns" data-view="returns" aria-pressed="false">Investment return</button>
+  </div>
+
+  <div class="cgrid">
+    <section class="card" id="c-curve" data-view="schedule"><h2 class="ch">What if we promise a finish day?</h2><p class="cn">Move the slider, hover or click the curve, or pick a scenario. Shaded area = chance of finishing by that day.</p>
+      <div class="ctl"><label for="tgt">Finish by day <b id="tv"></b></label><input class="rng" id="tgt" type="range" min="440" max="560" step="1" value="490"><button class="rst" id="rst" type="button">Reset to baseline</button></div>
+      <div class="read" id="rd">Chance of finishing by then: <b><span class="fill" id="pv" data-source="pertcurve" data-field="cdf" data-where="day=490">—</span>%</b></div>
+      <div class="chips" id="chips"></div>
+      <div class="box" id="b-curve"></div>
+    </section>
+    <section class="card" id="c-schedule" data-view="schedule"><h2 class="ch">Duration scenarios</h2><p class="cn">Working days. Bars start at 400 days so the gaps are visible. Click a bar to see it on the curve.</p><div class="box" id="b-schedule"></div></section>
+    <section class="card" id="c-prob" data-view="schedule"><h2 class="ch">Chance of finishing on time</h2><p class="cn">Probability of finishing within each duration, from the PERT analysis. Click a bar to see it on the curve.</p><div class="box" id="b-prob"></div></section>
+    <section class="card" id="c-cost" data-view="cost"><h2 class="ch">Budget vs forecast (₹ Cr)</h2><p class="cn">Cost build-up to the budget, then the forecast at the current cost efficiency.</p><div class="box" id="b-cost"></div></section>
+    <section class="card" id="c-evm" data-view="cost"><h2 class="ch">Earned value at Month 12 (₹ Cr)</h2><p class="cn">Earned below plan while spending above it. Bars start at ₹30 Cr.</p><div class="box" id="b-evm"></div></section>
+    <section class="card" id="c-ret" data-view="returns"><h2 class="ch">Return vs required rates (%)</h2><p class="cn">IRR against the discount rate and the investment hurdle.</p><div class="box" id="b-ret"></div></section>
+  </div>
+  <p class="foot">Simulated data from the final project analysis. Chances use a normal-curve approximation of the PERT estimate, so they can differ by a tenth of a point from the rounded figures in the report. Cost and schedule indices below 1.00 mean over budget and behind schedule.</p>
+</div>
+<script>
+(function(){
+  // ---- project data (simulated, from the final project analysis) ----
+  var DATA = {
+    schedule: [["Technical minimum","450"],["Crashed","466"],["CPM baseline","490"],["PERT expected","506.3"],["PERT 84% confidence","520"]].map(function(r){return {scenario:r[0],days:r[1]};}),
+    probability: [["Crashed","466"],["CPM baseline","490"],["PERT expected","506"],["Buffered","520"]].map(function(r){return {target:r[0],days:r[1]};}),
+    cost: [["Direct cost","90.00"],["Plus site overhead","99.80"],["Budget (BAC)","104.79"],["Forecast (EAC)","113.90"]].map(function(r){return {stage:r[0],crore:r[1]};}),
+    evm: [["Planned value (PV)","45.53"],["Earned value (EV)","42.80"],["Actual cost (AC)","46.52"]].map(function(r){return {measure:r[0],crore:r[1]};}),
+    kpi: [["bac_cr","104.79"],["eac_cr","113.90"],["contingency_cr","4.99"],["overrun_cr","9.11"],["cpi","0.92"],["spi","0.94"],["npv_cr","19.63"],["irr_pct","15.48"],["hurdle_pct","15"],["discount_pct","12"],["pert_mean_days","506.3"],["pert_sd_days","13.6"],["cpm_days","490"]].map(function(r){return {metric:r[0],value:r[1]};})
+  };
+  function kvOf(rows, m){ var r = rows.find(function(x){return x.metric === m;}); return r ? r.value : null; }
+
+  // normal-curve PERT estimate: density and cumulative chance by finish day
+  (function(){
+    var mu = +kvOf(DATA.kpi,'pert_mean_days'), sd = +kvOf(DATA.kpi,'pert_sd_days');
+    function erf(x){
+      var s = x < 0 ? -1 : 1, a = Math.abs(x), t = 1 / (1 + 0.3275911 * a);
+      var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-a * a);
+      return s * y;
+    }
+    var out = [];
+    for (var d = 440; d <= 560; d++){
+      var z = (d - mu) / sd;
+      out.push({day:d, density: Math.exp(-0.5*z*z)/(sd*Math.sqrt(2*Math.PI))*100, cdf: Math.round(0.5*(1+erf(z/Math.SQRT2))*1000)/10});
+    }
+    DATA.pertcurve = out;
+  })();
+
+  var root = document.getElementById('pj');
+  var state = {view:'all', target: 490};
+  var firstDone = false;
+  var ACCENT = 'var(--accent)', MUTED = 'var(--cds-chart-muted)', CRIT = 'var(--cds-chart-status-critical)';
+  var clampDay = function(d){ return Math.max(440, Math.min(560, Math.round(d))); };
+
+  // tooltip
+  var tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; root.appendChild(tip);
+  function showTip(ev, text){
+    tip.textContent = text; tip.hidden = false;
+    var rb = root.getBoundingClientRect();
+    var x = ev.clientX - rb.left + 12, y = ev.clientY - rb.top + 14, tw = tip.offsetWidth;
+    if (x + tw > rb.width) x = Math.max(0, rb.width - tw - 4);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function hideTip(){ tip.hidden = true; }
+
+  function bars(el, rows, o){
+    rows.forEach(function(r){
+      var v = +r[o.v];
+      var row = document.createElement('div'); row.className = 'br';
+      var l = document.createElement('div'); l.className = 'bl'; l.textContent = r[o.l];
+      var tr = document.createElement('div'); tr.className = 'bt';
+      var b = document.createElement('div'); b.className = 'bb';
+      b.style.width = Math.max(0, Math.min(100, (v - o.min) / (o.max - o.min) * 100)) + '%';
+      b.style.background = o.color(r);
+      tr.appendChild(b);
+      var val = document.createElement('div'); val.className = 'bv'; val.textContent = r[o.v] + (o.unit || '');
+      row.appendChild(l); row.appendChild(tr); row.appendChild(val);
+      var text = o.tip ? o.tip(r) : r[o.l] + ': ' + r[o.v] + (o.unit || '');
+      row.addEventListener('mousemove', function(ev){ showTip(ev, text); });
+      row.addEventListener('mouseleave', hideTip);
+      if (o.pick){
+        row.classList.add('pick'); row.tabIndex = 0; row.setAttribute('role','button');
+        if (o.sel && o.sel(r)) row.classList.add('sel');
+        var go = function(){ hideTip(); o.pick(r); };
+        row.addEventListener('click', go);
+        row.addEventListener('keydown', function(ev){ if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); go(); } });
+      }
+      el.appendChild(row);
+    });
+  }
+
+  var NS = 'http://www.w3.org/2000/svg';
+  function sv(name, attrs, parent){
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  function curve(el, pts, refs){
+    var w = Math.max(260, el.clientWidth || 480), h = 250;
+    var m = {l:8, r:8, t:30, b:28};
+    var ymax = Math.max.apply(null, pts.map(function(p){return p.density;})) * 1.05;
+    var X = function(d){ return m.l + (d - 440) / 120 * (w - m.l - m.r); };
+    var Y = function(v){ return h - m.b - v / ymax * (h - m.b - m.t); };
+    var svg = sv('svg', {width:'100%', viewBox:'0 0 ' + w + ' ' + h}, el);
+    var line = pts.map(function(p,i){ return (i ? 'L' : 'M') + X(p.day).toFixed(1) + ' ' + Y(p.density).toFixed(1); }).join(' ');
+    sv('path', {d: line + ' L' + X(560).toFixed(1) + ' ' + Y(0) + ' L' + X(440).toFixed(1) + ' ' + Y(0) + ' Z', fill:'var(--cds-chart-grid)'}, svg);
+    var part = pts.filter(function(p){return p.day <= state.target;});
+    if (part.length){
+      var pl = part.map(function(p,i){ return (i ? 'L' : 'M') + X(p.day).toFixed(1) + ' ' + Y(p.density).toFixed(1); }).join(' ');
+      sv('path', {d: pl + ' L' + X(part[part.length-1].day).toFixed(1) + ' ' + Y(0) + ' L' + X(440).toFixed(1) + ' ' + Y(0) + ' Z', fill:'var(--cds-chart-status-critical)', opacity:'0.45'}, svg);
+    }
+    sv('path', {d: line, fill:'none', stroke:'var(--accent)', 'stroke-width':'2', 'stroke-linecap':'round', 'stroke-linejoin':'round'}, svg);
+    // axis
+    sv('line', {x1:X(440), x2:X(560), y1:h-m.b, y2:h-m.b, stroke:'var(--cds-chart-axis)'}, svg);
+    [440,460,480,500,520,540,560].forEach(function(t){
+      sv('line', {x1:X(t), x2:X(t), y1:h-m.b, y2:h-m.b+5, stroke:'var(--cds-chart-axis)'}, svg);
+      var tx = sv('text', {x:X(t), y:h-m.b+18, 'text-anchor': t === 440 ? 'start' : (t === 560 ? 'end' : 'middle')}, svg);
+      tx.textContent = t;
+    });
+    refs.forEach(function(r){
+      var dx = X(+r.days);
+      sv('line', {x1:dx, x2:dx, y1:m.t, y2:h-m.b, stroke:'var(--cds-chart-reference)', 'stroke-dasharray':'3 3'}, svg);
+    });
+    var cur = pts.find(function(p){return p.day === state.target;});
+    if (cur){
+      var tx2 = X(cur.day);
+      sv('line', {x1:tx2, x2:tx2, y1:m.t-6, y2:h-m.b, stroke:'var(--color-fg)', 'stroke-width':'2'}, svg);
+      sv('circle', {cx:tx2, cy:Y(cur.density), r:4, fill:'var(--color-fg)'}, svg);
+      var t = sv('text', {'class':'tl', x:tx2, y:12, 'text-anchor':'middle'}, svg);
+      t.textContent = 'day ' + cur.day + ' · ' + cur.cdf + '%';
+      var len = t.getComputedTextLength();
+      if (tx2 - len/2 < 2) t.setAttribute('x', len/2 + 2);
+      if (tx2 + len/2 > w - 2) t.setAttribute('x', w - len/2 - 2);
+    }
+    var hit = sv('rect', {x:m.l, y:0, width:w-m.l-m.r, height:h-m.b, fill:'transparent'}, svg);
+    hit.style.cursor = 'pointer';
+    var dayAt = function(ev){
+      var rect = svg.getBoundingClientRect();
+      var px = (ev.clientX - rect.left) * (w / rect.width);
+      return clampDay(440 + (px - m.l) / (w - m.l - m.r) * 120);
+    };
+    hit.addEventListener('mousemove', function(ev){
+      var d = dayAt(ev), p = pts.find(function(q){return q.day === d;});
+      if (p) showTip(ev, 'Day ' + d + ': ' + p.cdf + '% chance of finishing by then');
+    });
+    hit.addEventListener('mouseleave', hideTip);
+    hit.addEventListener('click', function(ev){ state.target = dayAt(ev); render(); });
+  }
+
+  function fillFigures(){
+    document.querySelectorAll('.pj .fill').forEach(function(el){
+      var rows = DATA[el.dataset.source];
+      var w = {};
+      (el.dataset.where || '').split('&').forEach(function(p){ var k = p.split('='); w[k[0]] = k[1] || ''; });
+      var row = rows.find(function(r){ return Object.keys(w).every(function(k){ return String(r[k]) === w[k]; }); });
+      el.textContent = row ? String(row[el.dataset.field]) : '—';
+    });
+  }
+
+  function render(){
+    var pv = document.getElementById('pv');
+    pv.dataset.where = 'day=' + state.target;
+    fillFigures();
+
+    document.querySelectorAll('.pj .tab').forEach(function(b){
+      var on = b.dataset.view === state.view;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.pj .card').forEach(function(c){ c.hidden = !(state.view === 'all' || c.dataset.view === state.view); });
+
+    document.getElementById('tgt').value = state.target;
+    document.getElementById('tv').textContent = state.target;
+    var pnum = parseFloat(pv.textContent), rd = document.getElementById('rd');
+    rd.classList.remove('ok','bad');
+    if (!isNaN(pnum)) rd.classList.add(pnum >= 80 ? 'ok' : (pnum < 50 ? 'bad' : 'mid'));
+
+    var chips = document.getElementById('chips'); chips.textContent = '';
+    DATA.probability.forEach(function(r){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (clampDay(+r.days) === state.target ? ' on' : '');
+      b.textContent = r.target + ' · ' + r.days + ' d';
+      b.addEventListener('click', function(){ state.target = clampDay(+r.days); render(); });
+      chips.appendChild(b);
+    });
+
+    var el = document.getElementById('b-curve'); el.textContent = '';
+    curve(el, DATA.pertcurve, DATA.probability);
+
+    el = document.getElementById('b-schedule'); el.textContent = '';
+    bars(el, DATA.schedule, {l:'scenario', v:'days', min:400, max:530, unit:' d',
+      color: function(r){ return r.scenario === 'CPM baseline' ? ACCENT : (r.scenario === 'PERT expected' ? CRIT : MUTED); },
+      pick: function(r){ state.target = clampDay(+r.days); render(); },
+      sel: function(r){ return clampDay(+r.days) === state.target; }});
+
+    el = document.getElementById('b-prob'); el.textContent = '';
+    var prow = DATA.probability.map(function(r){
+      var c = DATA.pertcurve.find(function(q){ return q.day === clampDay(+r.days); });
+      return {label: r.target + ' (' + r.days + ' d)', p: c ? String(c.cdf) : '0', days: +r.days};
+    });
+    bars(el, prow, {l:'label', v:'p', min:0, max:100, unit:'%',
+      color: function(r){ return +r.p < 15 ? CRIT : ACCENT; },
+      tip: function(r){ return 'Chance of finishing within ' + r.days + ' days: ' + r.p + '%'; },
+      pick: function(r){ state.target = clampDay(r.days); render(); },
+      sel: function(r){ return clampDay(r.days) === state.target; }});
+
+    el = document.getElementById('b-cost'); el.textContent = '';
+    bars(el, DATA.cost, {l:'stage', v:'crore', min:0, max:120, unit:' Cr',
+      color: function(r){ return r.stage.indexOf('Forecast') === 0 ? CRIT : (r.stage.indexOf('Budget') === 0 ? ACCENT : MUTED); },
+      tip: function(r){ return r.stage + ': ₹' + r.crore + ' Cr'; }});
+
+    el = document.getElementById('b-evm'); el.textContent = '';
+    bars(el, DATA.evm, {l:'measure', v:'crore', min:30, max:48, unit:' Cr',
+      color: function(r){ return r.measure.indexOf('Actual') === 0 ? CRIT : (r.measure.indexOf('Earned') === 0 ? ACCENT : MUTED); },
+      tip: function(r){ return r.measure + ': ₹' + r.crore + ' Cr'; }});
+
+    el = document.getElementById('b-ret'); el.textContent = '';
+    bars(el, [
+      {label:'Discount rate (WACC)', v:kvOf(DATA.kpi,'discount_pct')},
+      {label:'Hurdle rate', v:kvOf(DATA.kpi,'hurdle_pct')},
+      {label:'Project IRR', v:kvOf(DATA.kpi,'irr_pct')}
+    ], {l:'label', v:'v', min:0, max:18, unit:'%',
+      color: function(r){ return r.label === 'Project IRR' ? ACCENT : MUTED; }});
+
+    if (!firstDone){
+      firstDone = true;
+      root.classList.add('first');
+      setTimeout(function(){ root.classList.remove('first'); }, 800);
+    }
+  }
+
+  document.getElementById('tgt').addEventListener('input', function(ev){ state.target = clampDay(+ev.target.value); render(); });
+  document.getElementById('rst').addEventListener('click', function(){ state.target = clampDay(+kvOf(DATA.kpi,'cpm_days')); render(); });
+  document.querySelectorAll('.pj .tab').forEach(function(b){
+    b.addEventListener('click', function(){ state.view = b.dataset.view; render(); });
+  });
+  window.addEventListener('resize', function(){ render(); });
+  render();
+})();
+</script>
+</body>
+</html>
